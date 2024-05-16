@@ -1,4 +1,5 @@
-*.cpp linguist-vendored
-*.h linguist-vendored
-*.cmake linguist-vendored
-CMakeLists.txt linguist-vendored
+*.cpp linguist-detectable=false
+*.html linguist-detectable=false
+*.cmake linguist-detectable=false
+*.txt linguist-detectable=false
+*.dart linguist-detectable=true
