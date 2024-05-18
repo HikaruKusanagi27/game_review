@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 const List<String> list = <String>['Switch', 'PS5', 'Steam'];
 
+const List<String> list2 = <String>['アクション', 'RPG', 'シュミレーション'];
+
 class PostPage extends StatelessWidget {
   const PostPage({super.key});
 
@@ -49,7 +51,6 @@ class PostPage extends StatelessWidget {
                   labelText: '発売日',
                 ),
               ),
-              DropdownButtonExample(),
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(
@@ -57,12 +58,12 @@ class PostPage extends StatelessWidget {
                   labelText: 'メーカー',
                 ),
               ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'ジャンル',
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('ジャンル:'),
+                  DropdownButtonExample2(),
+                ],
               ),
             ],
           ),
@@ -100,6 +101,43 @@ class _DropdownButtonExampleState extends State<DropdownButtonExample> {
         });
       },
       items: list.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class DropdownButtonExample2 extends StatefulWidget {
+  const DropdownButtonExample2({super.key});
+
+  @override
+  State<DropdownButtonExample2> createState() => _DropdownButtonExample2State();
+}
+
+class _DropdownButtonExample2State extends State<DropdownButtonExample2> {
+  String dropdownValue = list2.first;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          dropdownValue = value!;
+        });
+      },
+      items: list2.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
