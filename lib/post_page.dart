@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-const List<String> list = <String>['Switch', 'PS5', 'Steam'];
+const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
 
-const List<String> list2 = <String>['アクション', 'RPG', 'シュミレーション'];
+const List<String> makerList = <String>['ソニー', 'ニンテンドー', 'セガ'];
+
+const List<String> genreList = <String>['アクション', 'RPG', 'シュミレーション'];
 
 class PostPage extends StatelessWidget {
   const PostPage({super.key});
@@ -34,7 +36,7 @@ class PostPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('プラットフォーム:'),
-                  DropdownButtonExample(),
+                  PlatformListDropdownButton(),
                 ],
               ),
               TextField(
@@ -44,6 +46,7 @@ class PostPage extends StatelessWidget {
                   labelText: 'タイトル',
                 ),
               ),
+              SizedBox(height: 20),
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(
@@ -51,18 +54,20 @@ class PostPage extends StatelessWidget {
                   labelText: '発売日',
                 ),
               ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'メーカー',
-                ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('メーカー:'),
+                  MakerListDropdownButton(),
+                ],
               ),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('ジャンル:'),
-                  DropdownButtonExample2(),
+                  GenreListDropdownButton(),
                 ],
               ),
             ],
@@ -73,15 +78,17 @@ class PostPage extends StatelessWidget {
   }
 }
 
-class DropdownButtonExample extends StatefulWidget {
-  const DropdownButtonExample({super.key});
+class PlatformListDropdownButton extends StatefulWidget {
+  const PlatformListDropdownButton({super.key});
 
   @override
-  State<DropdownButtonExample> createState() => _DropdownButtonExampleState();
+  State<PlatformListDropdownButton> createState() =>
+      _PlatformListDropdownButtonState();
 }
 
-class _DropdownButtonExampleState extends State<DropdownButtonExample> {
-  String dropdownValue = list.first;
+class _PlatformListDropdownButtonState
+    extends State<PlatformListDropdownButton> {
+  String dropdownValue = platformList.first;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +107,7 @@ class _DropdownButtonExampleState extends State<DropdownButtonExample> {
           dropdownValue = value!;
         });
       },
-      items: list.map<DropdownMenuItem<String>>((String value) {
+      items: platformList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -110,15 +117,16 @@ class _DropdownButtonExampleState extends State<DropdownButtonExample> {
   }
 }
 
-class DropdownButtonExample2 extends StatefulWidget {
-  const DropdownButtonExample2({super.key});
+class MakerListDropdownButton extends StatefulWidget {
+  const MakerListDropdownButton({super.key});
 
   @override
-  State<DropdownButtonExample2> createState() => _DropdownButtonExample2State();
+  State<MakerListDropdownButton> createState() =>
+      _MakerListDropdownButtonState();
 }
 
-class _DropdownButtonExample2State extends State<DropdownButtonExample2> {
-  String dropdownValue = list2.first;
+class _MakerListDropdownButtonState extends State<MakerListDropdownButton> {
+  String dropdownValue = makerList.first;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +145,45 @@ class _DropdownButtonExample2State extends State<DropdownButtonExample2> {
           dropdownValue = value!;
         });
       },
-      items: list2.map<DropdownMenuItem<String>>((String value) {
+      items: makerList.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class GenreListDropdownButton extends StatefulWidget {
+  const GenreListDropdownButton({super.key});
+
+  @override
+  State<GenreListDropdownButton> createState() =>
+      _GenreListDropdownButtonState();
+}
+
+class _GenreListDropdownButtonState extends State<GenreListDropdownButton> {
+  String dropdownValue = genreList.first;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          dropdownValue = value!;
+        });
+      },
+      items: genreList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
