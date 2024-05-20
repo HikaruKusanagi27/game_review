@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
 
@@ -17,60 +18,65 @@ class PostPage extends StatelessWidget {
       ),
       body: Container(
         color: Colors.cyan[400],
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: const Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: 300,
-                  width: 300,
-                  child: Card(
-                    color: Colors.black,
-                    child: Text('test'),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: Card(
+                      color: Colors.black,
+                      child: Text('test'),
+                    ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('プラットフォーム:'),
-                  PlatformListDropdownButton(),
-                ],
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'タイトル',
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('プラットフォーム:'),
+                    PlatformListDropdownButton(),
+                  ],
                 ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '発売日',
+                TextField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'タイトル',
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('メーカー:'),
-                  MakerListDropdownButton(),
-                ],
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('ジャンル:'),
-                  GenreListDropdownButton(),
-                ],
-              ),
-            ],
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text('発売日:'),
+                  ],
+                ),
+                TableCalendar(
+                  firstDay: DateTime.utc(2010, 1, 1),
+                  lastDay: DateTime.utc(2030, 1, 1),
+                  focusedDay: DateTime.now(),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('メーカー:'),
+                    MakerListDropdownButton(),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('ジャンル:'),
+                    GenreListDropdownButton(),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
