@@ -100,26 +100,22 @@ class _PlatformListDropdownButtonState
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 160,
-      child: DropdownButton<String>(
-        isExpanded: true,
-        value: dropdownValue,
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-        style: const TextStyle(color: Colors.black),
-        onChanged: (String? value) {
-          // This is called when the user selects an item.
-          setState(() {
-            dropdownValue = value!;
-          });
-        },
-        items: platformList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+      style: const TextStyle(color: Colors.black),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          dropdownValue = value!;
+        });
+      },
+      items: platformList.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 }
@@ -137,26 +133,22 @@ class _MakerListDropdownButtonState extends State<MakerListDropdownButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 160,
-      child: DropdownButton<String>(
-        isExpanded: true,
-        value: dropdownValue,
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-        style: const TextStyle(color: Colors.black),
-        onChanged: (String? value) {
-          // This is called when the user selects an item.
-          setState(() {
-            dropdownValue = value!;
-          });
-        },
-        items: makerList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+      style: const TextStyle(color: Colors.black),
+      onChanged: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          dropdownValue = value!;
+        });
+      },
+      items: makerList.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 }
