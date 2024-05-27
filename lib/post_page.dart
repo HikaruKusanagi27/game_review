@@ -113,7 +113,15 @@ class _PlatformListDropdownButtonState
       items: platformList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: SizedBox(
+            width: 100,
+            child: Row(
+              children: [
+                const Spacer(),
+                Text(value),
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
@@ -146,7 +154,15 @@ class _MakerListDropdownButtonState extends State<MakerListDropdownButton> {
       items: makerList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: SizedBox(
+            width: 100,
+            child: Row(
+              children: [
+                const Spacer(),
+                Text(value),
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
@@ -179,7 +195,15 @@ class _GenreListDropdownButtonState extends State<GenreListDropdownButton> {
       items: genreList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: SizedBox(
+            width: 115,
+            child: Row(
+              children: [
+                const Spacer(),
+                Text(value),
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
