@@ -1,4 +1,4 @@
 # gamereview_app
-
+ゲームレビューアプリ🎮
 A new Flutter project.
-# game_review
+
