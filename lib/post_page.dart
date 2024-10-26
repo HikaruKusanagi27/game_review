@@ -77,6 +77,20 @@ class PostPage extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.cyan[50],
+                    ),
+                    child: Text(
+                      '投稿',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
