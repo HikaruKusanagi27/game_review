@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-const List<String> platformList = <String>['', 'PS5', 'Steam'];
+const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
 
 const List<String> makerList = <String>['ソニー', 'ニンテンドー', 'セガ'];
 
