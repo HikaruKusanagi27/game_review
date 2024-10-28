@@ -7,8 +7,22 @@ const List<String> makerList = <String>['ソニー', 'ニンテンドー', 'セ�
 
 const List<String> genreList = <String>['アクション', 'RPG', 'シュミレーション'];
 
-class PostPage extends StatelessWidget {
+class PostPage extends StatefulWidget {
   const PostPage({super.key});
+
+  @override
+  _PostPageState createState() => _PostPageState();
+}
+
+class _PostPageState extends State<PostPage> {
+  DateTime? _selectedDate;
+  final TextEditingController _dateController = TextEditingController();
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +58,42 @@ class PostPage extends StatelessWidget {
                 SizedBox(height: 20),
                 Row(
                   children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _dateController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: '発売日',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
                     Text('発売日:'),
+                    SizedBox(width: 10),
+                    if (_selectedDate != null)
+                      Text(
+                        "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                   ],
                 ),
                 TableCalendar(
                   firstDay: DateTime.utc(2010, 1, 1),
                   lastDay: DateTime.utc(2030, 1, 1),
                   focusedDay: DateTime.now(),
+                  selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDate = selectedDay;
+                      _dateController.text =
+                          "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
+                    });
+                  },
                 ),
                 SizedBox(height: 20),
                 Row(
