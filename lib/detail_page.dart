@@ -152,15 +152,6 @@ class DetailPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Center(
-                              child: Text(
-                            "",
-                            style: TextStyle(fontSize: 20),
-                          )),
-                        ],
-                      ),
                     ],
                   ),
                 ),
