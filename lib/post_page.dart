@@ -17,11 +17,28 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
+  String _displayedText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.addListener(() {
+      setState(() {
+        _displayedText = _dateController.text;
+      });
+    });
+  }
 
   @override
   void dispose() {
     _dateController.dispose();
     super.dispose();
+  }
+
+  void _clearDate() {
+    setState(() {
+      _dateController.clear(); // TextFieldの内容をクリア
+    });
   }
 
   @override
@@ -67,6 +84,10 @@ class _PostPageState extends State<PostPage> {
                         ),
                       ),
                     ),
+                    IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: _clearDate, // クリアボタン
+                    ),
                   ],
                 ),
                 SizedBox(height: 10),
@@ -93,6 +114,9 @@ class _PostPageState extends State<PostPage> {
                       _dateController.text =
                           "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
                     });
+                  },
+                  onFormatChanged: (format) {
+                    // do something
                   },
                 ),
                 SizedBox(height: 20),
