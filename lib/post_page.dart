@@ -17,14 +17,16 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   DateTime? _selectedDate;
   final TextEditingController _dateController = TextEditingController();
-  String _displayedText = '';
+  String _displayedDateText = '日付が選択されていません';
 
   @override
   void initState() {
     super.initState();
     _dateController.addListener(() {
       setState(() {
-        _displayedText = _dateController.text;
+        _displayedDateText = _dateController.text.isNotEmpty
+            ? _dateController.text
+            : "日付が選択されていません";
       });
     });
   }
@@ -38,6 +40,8 @@ class _PostPageState extends State<PostPage> {
   void _clearDate() {
     setState(() {
       _dateController.clear(); // TextFieldの内容をクリア
+      _selectedDate = null; // 日付の選択をクリア
+      _displayedDateText = "日付が選択されていません"; // 表示テキストをクリア
     });
   }
 
@@ -95,12 +99,11 @@ class _PostPageState extends State<PostPage> {
                   children: [
                     Text('発売日:'),
                     SizedBox(width: 10),
-                    if (_selectedDate != null)
-                      Text(
-                        "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                    Text(
+                      _displayedDateText,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
                 TableCalendar(
