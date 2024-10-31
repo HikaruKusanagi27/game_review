@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
@@ -16,23 +19,36 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   DateTime? _selectedDate;
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  String _displayedDateText = '日付が選択されていません';
+  String _displayedTitleText = 'タイトルが入力されていません';
+  String _displayedDateText = '日付が入力されていません';
+  File? _selectedImage;
 
   @override
   void initState() {
     super.initState();
+
+    _titleController.addListener(() {
+      setState(() {
+        _displayedTitleText = _titleController.text.isNotEmpty
+            ? _titleController.text
+            : "タイトルが入力されていません";
+      });
+    });
+
     _dateController.addListener(() {
       setState(() {
         _displayedDateText = _dateController.text.isNotEmpty
             ? _dateController.text
-            : "日付が選択されていません";
+            : "日付が入力されていません";
       });
     });
   }
 
   @override
   void dispose() {
+    _titleController.dispose();
     _dateController.dispose();
     super.dispose();
   }
@@ -41,8 +57,36 @@ class _PostPageState extends State<PostPage> {
     setState(() {
       _dateController.clear(); // TextFieldの内容をクリア
       _selectedDate = null; // 日付の選択をクリア
-      _displayedDateText = "日付が選択されていません"; // 表示テキストをクリア
+      _displayedDateText = "日付が入力されていません"; // 表示テキストをクリア
     });
+  }
+
+  void _clearDate2() {
+    setState(() {
+      _titleController.clear(); // TextFieldの内容をクリア
+      _displayedTitleText = "タイトルが入力されていません"; // 表示テキストをクリア
+    });
+  }
+
+  // 画像を取得するメソッド
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      // pickedFileがnullでない場合のみセット
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      } else {
+        // nullの場合の処理（エラーメッセージの表示など）
+        print("画像が選択されませんでした");
+      }
+    } catch (e) {
+      // エラー処理
+      print("画像の選択に失敗しました: $e");
+    }
   }
 
   @override
@@ -60,21 +104,38 @@ class _PostPageState extends State<PostPage> {
               children: [
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    height: 300,
-                    width: 300,
-                    child: Card(
-                      color: Colors.black,
-                      child: Text('test'),
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: Card(
+                          color: Colors.grey,
+                          child: Center(
+                            child: _selectedImage == null
+                                ? const Text('         タップして\n画像選択してください')
+                                : Image.file(_selectedImage!,
+                                    fit: BoxFit.cover),
+                          )),
                     ),
                   ),
                 ),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'タイトル',
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _titleController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'タイトル',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: _clearDate2, // クリアボタン
+                    ),
+                  ],
                 ),
                 SizedBox(height: 20),
                 Row(
@@ -91,6 +152,18 @@ class _PostPageState extends State<PostPage> {
                     IconButton(
                       icon: Icon(Icons.clear),
                       onPressed: _clearDate, // クリアボタン
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text('タイトル:'),
+                    SizedBox(width: 10),
+                    Text(
+                      _displayedTitleText,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -118,9 +191,7 @@ class _PostPageState extends State<PostPage> {
                           "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
                     });
                   },
-                  onFormatChanged: (format) {
-                    // do something
-                  },
+                  onFormatChanged: (format) {},
                 ),
                 SizedBox(height: 20),
                 Row(
@@ -189,7 +260,6 @@ class _PlatformListDropdownButtonState
       icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
       style: const TextStyle(color: Colors.black),
       onChanged: (String? value) {
-        // This is called when the user selects an item.
         setState(() {
           dropdownValue = value!;
         });
@@ -230,7 +300,6 @@ class _MakerListDropdownButtonState extends State<MakerListDropdownButton> {
       icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
       style: const TextStyle(color: Colors.black),
       onChanged: (String? value) {
-        // This is called when the user selects an item.
         setState(() {
           dropdownValue = value!;
         });
@@ -271,7 +340,6 @@ class _GenreListDropdownButtonState extends State<GenreListDropdownButton> {
       icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
       style: const TextStyle(color: Colors.black),
       onChanged: (String? value) {
-        // This is called when the user selects an item.
         setState(() {
           dropdownValue = value!;
         });
