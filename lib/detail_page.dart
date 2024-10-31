@@ -152,6 +152,74 @@ class DetailPage extends StatelessWidget {
                           ),
                         ],
                       ),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.perm_identity,
+                                size: 30,
+                                color: Colors.cyan[400],
+                              ),
+                              Text(
+                                '   約束された神ゲーですね！！',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.cyan[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.perm_identity,
+                                size: 30,
+                                color: Colors.cyan[400],
+                              ),
+                              Text(
+                                '   約束された神ゲーですね！！',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.cyan[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.perm_identity,
+                                size: 30,
+                                color: Colors.cyan[400],
+                              ),
+                              Text(
+                                '   約束された神ゲーですね！！',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.cyan[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.perm_identity,
+                                size: 30,
+                                color: Colors.cyan[400],
+                              ),
+                              Text(
+                                '   約束された神ゲーですね！！',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.cyan[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

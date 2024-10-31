@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
                     return GestureDetector(
                       child: Card(
                           elevation: 10,
-                          color: Colors.black, // カードの色を明るくする
+                          color: Colors.black,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Image.network(imageUrl),
