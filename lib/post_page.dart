@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -46,6 +47,25 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
+  // Firebaseにデータを保存するメソッド
+  Future<void> _saveDataToFirebase() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    try {
+      await firestore.collection('dataList').add({
+        'name': _titleController.text,
+        'release': _selectedDate != null ? _dateController.text : '',
+        'platform': 'Switch', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'maker': 'ソニー', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'genre': 'アクション', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'imageURL': 'image_url_path', // Firebase StorageにアップロードするならそのURLを設定
+      });
+      Navigator.pop(context); // 投稿後に前の画面に戻る
+    } catch (e) {
+      print('Error saving data to Firebase: $e');
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -61,7 +81,7 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-  void _clearDate2() {
+  void _clearTitle() {
     setState(() {
       _titleController.clear(); // TextFieldの内容をクリア
       _displayedTitleText = "タイトルが入力されていません"; // 表示テキストをクリア
@@ -133,7 +153,7 @@ class _PostPageState extends State<PostPage> {
                     ),
                     IconButton(
                       icon: Icon(Icons.clear),
-                      onPressed: _clearDate2, // クリアボタン
+                      onPressed: _clearTitle, // クリアボタン
                     ),
                   ],
                 ),
@@ -220,7 +240,7 @@ class _PostPageState extends State<PostPage> {
                 SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _saveDataToFirebase, // 投稿ボタンにメソッドを追加
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyan[50],
                     ),
