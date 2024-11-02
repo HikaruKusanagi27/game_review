@@ -48,7 +48,7 @@ class _PostPageState extends State<PostPage> {
   }
 
   // Firebaseにデータを保存するメソッド
-  Future<void> _saveDataToFirebase() async {
+  Future<void> _saveDataToFirebase(String imageUrl) async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
@@ -58,7 +58,7 @@ class _PostPageState extends State<PostPage> {
         'platform': 'Switch', // 固定値を設定（実際のアプリではDropdownの値を使用）
         'maker': 'ソニー', // 固定値を設定（実際のアプリではDropdownの値を使用）
         'genre': 'アクション', // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'imageURL': 'image_url_path', // Firebase StorageにアップロードするならそのURLを設定
+        'imageURL': imageUrl, // Firebase StorageにアップロードするならそのURLを設定
       });
       Navigator.pop(context); // 投稿後に前の画面に戻る
     } catch (e) {
@@ -96,9 +96,23 @@ class _PostPageState extends State<PostPage> {
 
       // pickedFileがnullでない場合のみセット
       if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+
+        // Firebase Storageに画像をアップロード
+        String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
+        final storageRef = FirebaseStorage.instance.ref().child(fileName);
+
+        await storageRef.putFile(imageFile);
+
+        // アップロード後に画像URLを取得
+        String imageUrl = await storageRef.getDownloadURL();
+
         setState(() {
-          _selectedImage = File(pickedFile.path);
+          _selectedImage = imageFile;
         });
+
+        // 画像URLとともにFirestoreに保存
+        await _saveDataToFirebase(imageUrl);
       } else {
         // nullの場合の処理（エラーメッセージの表示など）
         print("画像が選択されませんでした");

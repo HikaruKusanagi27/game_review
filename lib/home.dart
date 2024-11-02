@@ -3,14 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:gamereview_app/detail_page.dart';
 import 'package:gamereview_app/post_page.dart';
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  Future<List<Map<String, dynamic>>> _imageData = getImageData();
+
+  void _refreshData() {
+    setState(() {
+      _imageData = getImageData(); // 再取得するためにFutureを更新
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: getImageData(),
+          future: _imageData,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
