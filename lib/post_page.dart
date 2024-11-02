@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -254,7 +255,7 @@ class _PostPageState extends State<PostPage> {
                 SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _saveDataToFirebase, // 投稿ボタンにメソッドを追加
+                    onPressed: _pickImage, // 画像選択とアップロード処理を開始
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyan[50],
                     ),
