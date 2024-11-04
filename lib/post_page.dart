@@ -48,24 +48,24 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-  // // Firebaseにデータを保存するメソッド
-  // Future<void> _saveDataToFirebase(String imageUrl) async {
-  //   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  // Firebaseにデータを保存するメソッド
+  Future<void> _saveDataToFirebase(String imageUrl) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  //   try {
-  //     await firestore.collection('dataList').add({
-  //       'name': _titleController.text,
-  //       'release': _selectedDate != null ? _dateController.text : '',
-  //       'platform': 'Switch', // 固定値を設定（実際のアプリではDropdownの値を使用）
-  //       'maker': 'ソニー', // 固定値を設定（実際のアプリではDropdownの値を使用）
-  //       'genre': 'アクション', // 固定値を設定（実際のアプリではDropdownの値を使用）
-  //       'imageURL': imageUrl, // Firebase StorageにアップロードするならそのURLを設定
-  //     });
-  //     Navigator.pop(context); // 投稿後に前の画面に戻る
-  //   } catch (e) {
-  //     print('Error saving data to Firebase: $e');
-  //   }
-  // }
+    try {
+      await firestore.collection('dataList').add({
+        'name': _titleController.text,
+        'release': _selectedDate != null ? _dateController.text : '',
+        'platform': 'Switch', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'maker': 'ソニー', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'genre': 'アクション', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'imageURL': imageUrl, // Firebase StorageにアップロードするならそのURLを設定
+      });
+      Navigator.pop(context); // 投稿後に前の画面に戻る
+    } catch (e) {
+      print('Error saving data to Firebase: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -89,25 +89,6 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-// Firebaseにデータを保存するメソッド
-  Future<void> _saveDataToFirebase(String imageUrl) async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    try {
-      await firestore.collection('dataList').add({
-        'name': _titleController.text,
-        'release': _selectedDate != null ? _dateController.text : '',
-        'platform': 'Switch', // 固定値（実際のアプリではDropdownの値を使用）
-        'maker': 'ソニー', // 固定値（実際のアプリではDropdownの値を使用）
-        'genre': 'アクション', // 固定値（実際のアプリではDropdownの値を使用）
-        'imageURL': imageUrl,
-      });
-      Navigator.pop(context); // 投稿後に前の画面に戻る
-    } catch (e) {
-      print('Error saving data to Firebase: $e');
-    }
-  }
-
   // 画像を取得するメソッド
   Future<void> _pickImage() async {
     try {
@@ -129,6 +110,7 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
+  // 画像を取得し、アップロードするメソッド
   Future<void> _uploadImageAndSaveData() async {
     // 画像が選択されているか確認
     if (_selectedImage == null) {
@@ -137,45 +119,23 @@ class _PostPageState extends State<PostPage> {
     }
 
     try {
-      // 固定ファイル名でアップロードをテスト（必要に応じて変更）
-      String fileName = 'images/test_image.png';
+      // Firebase Storageに画像をアップロード
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
       final storageRef = FirebaseStorage.instance.ref().child(fileName);
 
-      print('Uploading image...');
-      var uploadTask = storageRef.putFile(_selectedImage!);
-      await uploadTask;
-      print('Image uploaded successfully.');
+      await storageRef.putFile(_selectedImage!);
 
-      // ダウンロードURL取得のリトライを設定
-      String imageUrl = ''; // 初期値を空文字列に設定
-      int retries = 3;
-      bool isUrlFetched = false;
+      // アップロード後に画像URLを取得
+      String imageUrl = await storageRef.getDownloadURL();
 
-      for (int attempt = 0; attempt < retries; attempt++) {
-        try {
-          print('Fetching download URL...');
-          imageUrl = await storageRef.getDownloadURL();
-          print('Download URL fetched successfully: $imageUrl');
-          isUrlFetched = true;
-          break;
-        } catch (e) {
-          print('Failed to get download URL, retrying...');
-          await Future.delayed(Duration(seconds: 1)); // 1秒待機
-        }
-      }
-
-      // ダウンロードURLが取得できた場合のみFirestoreに保存
-      if (isUrlFetched) {
-        await _saveDataToFirebase(imageUrl);
-        print("Data saved to Firestore with image URL.");
-      } else {
-        print("Failed to get download URL after retries.");
-      }
+      // Firestoreにデータを保存
+      await _saveDataToFirebase(imageUrl);
     } catch (e) {
       print("画像のアップロードまたはFirestoreへの保存に失敗しました: $e");
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
