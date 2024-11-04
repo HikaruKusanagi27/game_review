@@ -97,23 +97,9 @@ class _PostPageState extends State<PostPage> {
 
       // pickedFileがnullでない場合のみセット
       if (pickedFile != null) {
-        File imageFile = File(pickedFile.path);
-
-        // Firebase Storageに画像をアップロード
-        String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
-        final storageRef = FirebaseStorage.instance.ref().child(fileName);
-
-        await storageRef.putFile(imageFile);
-
-        // アップロード後に画像URLを取得
-        String imageUrl = await storageRef.getDownloadURL();
-
         setState(() {
-          _selectedImage = imageFile;
+          _selectedImage = File(pickedFile.path);
         });
-
-        // 画像URLとともにFirestoreに保存
-        await _saveDataToFirebase(imageUrl);
       } else {
         // nullの場合の処理（エラーメッセージの表示など）
         print("画像が選択されませんでした");
@@ -121,6 +107,31 @@ class _PostPageState extends State<PostPage> {
     } catch (e) {
       // エラー処理
       print("画像の選択に失敗しました: $e");
+    }
+  }
+
+  // 画像を取得し、アップロードするメソッド
+  Future<void> _uploadImageAndSaveData() async {
+    // 画像が選択されているか確認
+    if (_selectedImage == null) {
+      print("画像を選択してください");
+      return;
+    }
+
+    try {
+      // Firebase Storageに画像をアップロード
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
+      final storageRef = FirebaseStorage.instance.ref().child(fileName);
+
+      await storageRef.putFile(_selectedImage!);
+
+      // アップロード後に画像URLを取得
+      String imageUrl = await storageRef.getDownloadURL();
+
+      // Firestoreにデータを保存
+      await _saveDataToFirebase(imageUrl);
+    } catch (e) {
+      print("画像のアップロードまたはFirestoreへの保存に失敗しました: $e");
     }
   }
 
@@ -147,11 +158,16 @@ class _PostPageState extends State<PostPage> {
                       child: Card(
                           color: Colors.grey,
                           child: Center(
-                            child: _selectedImage == null
-                                ? const Text('         タップして\n画像選択してください')
-                                : Image.file(_selectedImage!,
-                                    fit: BoxFit.cover),
-                          )),
+                              child: _selectedImage == null
+                                  ? const Text('         タップして\n画像選択してください')
+                                  : Image.file(
+                                      _selectedImage!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Text('画像の読み込みに失敗しました');
+                                      },
+                                    ))),
                     ),
                   ),
                 ),
@@ -255,7 +271,9 @@ class _PostPageState extends State<PostPage> {
                 SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _pickImage, // 画像選択とアップロード処理を開始
+                    onPressed: () async {
+                      await _uploadImageAndSaveData();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyan[50],
                     ),
