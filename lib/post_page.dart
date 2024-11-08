@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +27,11 @@ class _PostPageState extends State<PostPage> {
   String _displayedTitleText = 'タイトルが入力されていません';
   String _displayedDateText = '日付が入力されていません';
   File? _selectedImage;
+
+  // 新たにプラットフォーム、メーカー、ジャンルの選択状態を保存する変数を追加
+  String _selectedPlatform = platformList.first;
+  String _selectedMaker = makerList.first;
+  String _selectedGenre = genreList.first;
 
   @override
   void initState() {
@@ -56,9 +62,9 @@ class _PostPageState extends State<PostPage> {
       await firestore.collection('dataList').add({
         'name': _titleController.text,
         'release': _selectedDate != null ? _dateController.text : '',
-        'platform': 'Switch', // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'maker': 'ソニー', // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'genre': 'アクション', // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'platform': _selectedPlatform, // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'maker': _selectedMaker, // 固定値を設定（実際のアプリではDropdownの値を使用）
+        'genre': _selectedGenre, // 固定値を設定（実際のアプリではDropdownの値を使用）
         'imageURL': imageUrl, // Firebase StorageにアップロードするならそのURLを設定
       });
       Navigator.pop(context); // 投稿後に前の画面に戻る
@@ -110,28 +116,11 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
-  // 画像を取得し、アップロードするメソッド
+  // 画像ファイルのアップロードとFireStoreへの保存
   Future<void> _uploadImageAndSaveData() async {
-    // 画像が選択されているか確認
     if (_selectedImage == null) {
       print("画像を選択してください");
       return;
-    }
-
-    try {
-      // Firebase Storageに画像をアップロード
-      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
-      final storageRef = FirebaseStorage.instance.ref().child(fileName);
-
-      await storageRef.putFile(_selectedImage!);
-
-      // アップロード後に画像URLを取得
-      String imageUrl = await storageRef.getDownloadURL();
-
-      // Firestoreにデータを保存
-      await _saveDataToFirebase(imageUrl);
-    } catch (e) {
-      print("画像のアップロードまたはFirestoreへの保存に失敗しました: $e");
     }
   }
 
