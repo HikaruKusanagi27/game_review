@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "120582564373",
     "project_id": "gamereview-app",
-    "storage_bucket": "gamereview-app.appspot.com"
+    "storage_bucket": "gamereview-app.firebasestorage.app"
   },
   "client": [
     {

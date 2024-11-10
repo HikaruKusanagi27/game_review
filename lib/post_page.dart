@@ -122,6 +122,24 @@ class _PostPageState extends State<PostPage> {
       print("画像を選択してください");
       return;
     }
+
+    try {
+      // Firebase Storageに画像をアップロード
+      final storage = FirebaseStorage.instance;
+      final storageRef = storage
+          .ref()
+          .child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await storageRef.putFile(_selectedImage!);
+
+      // アップロードした画像のURLを取得
+      final imageUrl = await storageRef.getDownloadURL();
+
+      // Firestoreにデータを保存
+      await _saveDataToFirebase(imageUrl);
+      print("データが正常に保存されました");
+    } catch (e) {
+      print("画像のアップロードまたはデータ保存に失敗しました: $e");
+    }
   }
 
   @override

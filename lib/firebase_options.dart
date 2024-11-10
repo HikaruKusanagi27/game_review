@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:120582564373:android:5ed6cd1bd6d26ae978bc1c',
     messagingSenderId: '120582564373',
     projectId: 'gamereview-app',
-    storageBucket: 'gamereview-app.appspot.com',
+    storageBucket: 'gamereview-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +62,8 @@ class DefaultFirebaseOptions {
     appId: '1:120582564373:ios:a1f354900694999978bc1c',
     messagingSenderId: '120582564373',
     projectId: 'gamereview-app',
-    storageBucket: 'gamereview-app.appspot.com',
+    storageBucket: 'gamereview-app.firebasestorage.app',
     iosBundleId: 'com.example.gamereviewApp',
   );
+
 }
