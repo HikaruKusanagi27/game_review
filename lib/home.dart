@@ -75,7 +75,10 @@ class _MainAppState extends State<MainApp> {
               builder: (context) => const PostPage(),
               fullscreenDialog: true,
             ),
-          );
+          ).then((_) {
+            // PostPageから戻ったときにデータを再取得
+            _refreshData();
+          });
         },
         child: const Icon(Icons.add),
       ),
