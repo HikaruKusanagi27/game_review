@@ -27,8 +27,11 @@ class DetailPage extends StatelessWidget {
                   color: Colors.black,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Image.network(cardData['imageURL']),
-                  )),
+                    child: Image.network(
+                      cardData['imageURL'],
+                      errorBuilder: (context, error, stackTrace) {// Image.networkで画像読み込みが失敗した場合に備え、errorBuilderを追加
+                        return Icon(Icons.broken_image, color: Colors.white);
+                        }))),
               TabBar(
                 indicatorColor: Colors.cyan[400],
                 tabs: [
