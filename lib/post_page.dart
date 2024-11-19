@@ -5,6 +5,92 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+//Riverpodの状態管理
+//フォームの状態を管理するためのStateNotifierを作成。
+class PostFormState {
+  final String title;
+  final String releaseDate;
+  final String platform;
+  final String maker;
+  final String genre;
+  final File? selectedImage;
+  final DateTime? selectedDate;
+
+  PostFormState({
+    required this.title,
+    required this.releaseDate,
+    required this.platform,
+    required this.maker,
+    required this.genre,
+    this.selectedImage,
+    this.selectedDate,
+  });
+
+  PostFormState copyWith({
+    String? title,
+    String? releaseDate,
+    String? platform,
+    String? maker,
+    String? genre,
+    File? selectedImage,
+    DateTime? selectedDate,
+  }) {
+    return PostFormState(
+      title: title ?? this.title,
+      releaseDate: releaseDate ?? this.releaseDate,
+      platform: platform ?? this.platform,
+      maker: maker ?? this.maker,
+      genre: genre ?? this.genre,
+      selectedImage: selectedImage ?? this.selectedImage,
+      selectedDate: selectedDate ?? this.selectedDate,
+    );
+  }
+}
+
+class PostFormNotifier extends StateNotifier<PostFormState> {
+  PostFormNotifier()
+      : super(PostFormState(
+          title: '',
+          releaseDate: '',
+          platform: platformList.first,
+          maker: makerList.first,
+          genre: genreList.first,
+        ));
+
+  void updateTitle(String? title) {
+    state = state.copyWith(title: title ?? ''); // title が null の場合は空文字をセット
+  }
+
+  void updateReleaseDate(String releaseDate) {
+    state = state.copyWith(releaseDate: releaseDate);
+  }
+
+  void updatePlatform(String? platform) {
+    state = state.copyWith(platform: platform);
+  }
+
+  void updateMaker(String? maker) {
+    state = state.copyWith(maker: maker);
+  }
+
+  void updateGenre(String? genre) {
+    state = state.copyWith(genre: genre);
+  }
+
+  void updateSelectedImage(File? image) {
+    state = state.copyWith(selectedImage: image);
+  }
+
+  void updateSelectedDate(DateTime? date) {
+    state = state.copyWith(selectedDate: date);
+  }
+}
+
+final postFormProvider = StateNotifierProvider<PostFormNotifier, PostFormState>(
+  (ref) => PostFormNotifier(),
+);
 
 const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
 
@@ -12,137 +98,59 @@ const List<String> makerList = <String>['ソニー', 'ニンテンドー', 'セ�
 
 const List<String> genreList = <String>['アクション', 'RPG', 'シュミレーション'];
 
-class PostPage extends StatefulWidget {
+class PostPage extends ConsumerWidget {
   const PostPage({super.key});
 
   @override
-  _PostPageState createState() => _PostPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formState = ref.watch(postFormProvider);
+    final postFormNotifier = ref.read(postFormProvider.notifier);
 
-class _PostPageState extends State<PostPage> {
-  DateTime? _selectedDate;
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  String _displayedTitleText = 'タイトルが入力されていません';
-  String _displayedDateText = '日付が入力されていません';
-  File? _selectedImage;
+    Future<void> _pickImage() async {
+      try {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  // 新たにプラットフォーム、メーカー、ジャンルの選択状態を保存する変数を追加
-  String _selectedPlatform = platformList.first;
-  String _selectedMaker = makerList.first;
-  String _selectedGenre = genreList.first;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _titleController.addListener(() {
-      setState(() {
-        _displayedTitleText = _titleController.text.isNotEmpty
-            ? _titleController.text
-            : "タイトルが入力されていません";
-      });
-    });
-
-    _dateController.addListener(() {
-      setState(() {
-        _displayedDateText = _dateController.text.isNotEmpty
-            ? _dateController.text
-            : "日付が入力されていません";
-      });
-    });
-  }
-
-  // Firebaseにデータを保存するメソッド
-  Future<void> _saveDataToFirebase(String imageUrl) async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    try {
-      await firestore.collection('dataList').add({
-        'name': _titleController.text,
-        'release': _selectedDate != null ? _dateController.text : '',
-        'platform': _selectedPlatform, // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'maker': _selectedMaker, // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'genre': _selectedGenre, // 固定値を設定（実際のアプリではDropdownの値を使用）
-        'imageURL': imageUrl, // Firebase StorageにアップロードするならそのURLを設定
-      });
-      Navigator.pop(context); // 投稿後に前の画面に戻る
-    } catch (e) {
-      print('Error saving data to Firebase: $e');
-    }
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _dateController.dispose();
-    super.dispose();
-  }
-
-  void _clearDate() {
-    setState(() {
-      _dateController.clear(); // TextFieldの内容をクリア
-      _selectedDate = null; // 日付の選択をクリア
-      _displayedDateText = "日付が入力されていません"; // 表示テキストをクリア
-    });
-  }
-
-  void _clearTitle() {
-    setState(() {
-      _titleController.clear(); // TextFieldの内容をクリア
-      _displayedTitleText = "タイトルが入力されていません"; // 表示テキストをクリア
-    });
-  }
-
-  // 画像を取得するメソッド
-  Future<void> _pickImage() async {
-    try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      // pickedFileがnullでない場合のみセット
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-      } else {
-        // nullの場合の処理（エラーメッセージの表示など）
-        print("画像が選択されませんでした");
+        if (pickedFile != null) {
+          postFormNotifier.updateSelectedImage(File(pickedFile.path));
+        }
+      } catch (e) {
+        print("画像の選択に失敗しました: $e");
       }
-    } catch (e) {
-      // エラー処理
-      print("画像の選択に失敗しました: $e");
-    }
-  }
-
-  // 画像ファイルのアップロードとFireStoreへの保存
-  Future<void> _uploadImageAndSaveData() async {
-    if (_selectedImage == null) {
-      print("画像を選択してください");
-      return;
     }
 
-    try {
-      // Firebase Storageに画像をアップロード
-      final storage = FirebaseStorage.instance;
-      final storageRef = storage
-          .ref()
-          .child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
-      await storageRef.putFile(_selectedImage!);
+    Future<void> _uploadImageAndSaveData() async {
+      if (formState.selectedImage == null) {
+        print("画像を選択してください");
+        return;
+      }
 
-      // アップロードした画像のURLを取得
-      final imageUrl = await storageRef.getDownloadURL();
+      try {
+        final storage = FirebaseStorage.instance;
+        final storageRef = storage
+            .ref()
+            .child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        await storageRef.putFile(formState.selectedImage!);
 
-      // Firestoreにデータを保存
-      await _saveDataToFirebase(imageUrl);
-      print("データが正常に保存されました");
-    } catch (e) {
-      print("画像のアップロードまたはデータ保存に失敗しました: $e");
+        final imageUrl = await storageRef.getDownloadURL();
+
+        final firestore = FirebaseFirestore.instance;
+        await firestore.collection('dataList').add({
+          'name': formState.title,
+          'release': formState.releaseDate,
+          'platform': formState.platform,
+          'maker': formState.maker,
+          'genre': formState.genre,
+          'imageURL': imageUrl,
+        });
+
+        Navigator.pop(context); // 投稿後に前の画面に戻る
+        print("データが正常に保存されました");
+      } catch (e) {
+        print("画像のアップロードまたはデータ保存に失敗しました: $e");
+      }
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan[50],
@@ -154,43 +162,37 @@ class _PostPageState extends State<PostPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: GestureDetector(
-                    onTap: _pickImage,
-                    child: SizedBox(
-                      height: 300,
-                      width: 300,
-                      child: Card(
-                          color: Colors.grey,
-                          child: Center(
-                              child: _selectedImage == null
-                                  ? const Text('         タップして\n画像選択してください')
-                                  : Image.file(
-                                      _selectedImage!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Text('画像の読み込みに失敗しました');
-                                      },
-                                    ))),
-                    ),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: Card(
+                        color: Colors.grey,
+                        child: Center(
+                            child: formState.selectedImage == null
+                                ? const Text('         タップして\n画像選択してください')
+                                : Image.file(
+                                    formState.selectedImage!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Text('画像の読み込みに失敗しました');
+                                    },
+                                  ))),
                   ),
                 ),
                 Row(
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: _titleController,
+                        controller:
+                            TextEditingController(text: formState.title),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'タイトル',
                         ),
+                        onChanged: postFormNotifier.updateTitle,
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: _clearTitle, // クリアボタン
                     ),
                   ],
                 ),
@@ -199,16 +201,14 @@ class _PostPageState extends State<PostPage> {
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: _dateController,
+                        controller:
+                            TextEditingController(text: formState.releaseDate),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: '発売日',
                         ),
+                        onChanged: postFormNotifier.updateReleaseDate,
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: _clearDate, // クリアボタン
                     ),
                   ],
                 ),
@@ -218,7 +218,9 @@ class _PostPageState extends State<PostPage> {
                     Text('タイトル:'),
                     SizedBox(width: 10),
                     Text(
-                      _displayedTitleText,
+                      formState.title.isNotEmpty
+                          ? formState.title
+                          : 'タイトルが入力されていません',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
@@ -230,7 +232,9 @@ class _PostPageState extends State<PostPage> {
                     Text('発売日:'),
                     SizedBox(width: 10),
                     Text(
-                      _displayedDateText,
+                      formState.releaseDate.isNotEmpty
+                          ? formState.releaseDate
+                          : '日付が入力されていません',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
@@ -240,22 +244,31 @@ class _PostPageState extends State<PostPage> {
                   firstDay: DateTime.utc(2010, 1, 1),
                   lastDay: DateTime.utc(2030, 1, 1),
                   focusedDay: DateTime.now(),
-                  selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
+                  selectedDayPredicate: (day) =>
+                      formState.selectedDate != null &&
+                      isSameDay(formState.selectedDate, day),
                   onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDate = selectedDay;
-                      _dateController.text =
-                          "${selectedDay.year}-${selectedDay.month}-${selectedDay.day}";
-                    });
+                    postFormNotifier.updateSelectedDate(selectedDay);
                   },
-                  onFormatChanged: (format) {},
                 ),
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('プラットフォーム:'),
-                    PlatformListDropdownButton(),
+                    DropdownButton<String>(
+                      value: formState.platform,
+                      icon: const Icon(Icons.arrow_drop_down,
+                          color: Colors.black),
+                      onChanged: postFormNotifier.updatePlatform,
+                      items: platformList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -263,7 +276,19 @@ class _PostPageState extends State<PostPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('メーカー:'),
-                    MakerListDropdownButton(),
+                    DropdownButton<String>(
+                      value: formState.maker,
+                      icon: const Icon(Icons.arrow_drop_down,
+                          color: Colors.black),
+                      onChanged: postFormNotifier.updateMaker,
+                      items: makerList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -271,25 +296,25 @@ class _PostPageState extends State<PostPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('ジャンル:'),
-                    GenreListDropdownButton(),
+                    DropdownButton<String>(
+                      value: formState.genre,
+                      icon: const Icon(Icons.arrow_drop_down,
+                          color: Colors.black),
+                      onChanged: postFormNotifier.updateGenre,
+                      items: genreList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
                 SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await _uploadImageAndSaveData();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan[50],
-                    ),
-                    child: Text(
-                      '投稿',
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
+                ElevatedButton(
+                  onPressed: _uploadImageAndSaveData,
+                  child: const Text('投稿'),
                 ),
               ],
             ),

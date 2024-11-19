@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DetailPage extends StatelessWidget {
-  final Map<String, dynamic> cardData;
-  const DetailPage({
-    super.key,
-    required this.cardData,
-  });
+// cardDataを管理するProviderを作成
+final cardDataProvider = Provider<Map<String, dynamic>>((ref) {
+  // ここでカードデータを取得するロジックを実装します。
+  return {
+    'name': 'ゲーム名',
+    'imageURL': 'https://example.com/image.jpg',
+    'platform': 'PC',
+    'release': '2024-11-18',
+    'maker': 'ゲームメーカー',
+    'genre': 'アクション',
+  };
+});
+
+class DetailPage extends ConsumerWidget {
+  final dynamic cardData; // cardDataを受け取るフィールドを追加
+  const DetailPage({super.key, required this.cardData}); // コンストラクタでcardDataを必須に
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // cardDataProviderからデータを取得
+    final cardData = ref.watch(cardDataProvider);
+
     return DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -26,12 +40,12 @@ class DetailPage extends StatelessWidget {
                   elevation: 10,
                   color: Colors.black,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Image.network(
-                      cardData['imageURL'],
-                      errorBuilder: (context, error, stackTrace) {// Image.networkで画像読み込みが失敗した場合に備え、errorBuilderを追加
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.network(cardData['imageURL'],
+                          errorBuilder: (context, error, stackTrace) {
+                        // Image.networkで画像読み込みが失敗した場合に備え、errorBuilderを追加
                         return Icon(Icons.broken_image, color: Colors.white);
-                        }))),
+                      }))),
               TabBar(
                 indicatorColor: Colors.cyan[400],
                 tabs: [
