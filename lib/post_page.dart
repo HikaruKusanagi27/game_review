@@ -249,6 +249,10 @@ class PostPage extends ConsumerWidget {
                       isSameDay(formState.selectedDate, day),
                   onDaySelected: (selectedDay, focusedDay) {
                     postFormNotifier.updateSelectedDate(selectedDay);
+                    // 選択された日付を文字列形式にして releaseDate に保存
+                    final formattedDate =
+                        '${selectedDay.year}-${selectedDay.month.toString().padLeft(2, '0')}-${selectedDay.day.toString().padLeft(2, '0')}';
+                    postFormNotifier.updateReleaseDate(formattedDate);
                   },
                 ),
                 SizedBox(height: 20),
@@ -321,127 +325,6 @@ class PostPage extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class PlatformListDropdownButton extends StatefulWidget {
-  const PlatformListDropdownButton({super.key});
-
-  @override
-  State<PlatformListDropdownButton> createState() =>
-      _PlatformListDropdownButtonState();
-}
-
-class _PlatformListDropdownButtonState
-    extends State<PlatformListDropdownButton> {
-  String dropdownValue = platformList.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-      style: const TextStyle(color: Colors.black),
-      onChanged: (String? value) {
-        setState(() {
-          dropdownValue = value!;
-        });
-      },
-      items: platformList.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: SizedBox(
-            width: 100,
-            child: Row(
-              children: [
-                const Spacer(),
-                Text(value),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class MakerListDropdownButton extends StatefulWidget {
-  const MakerListDropdownButton({super.key});
-
-  @override
-  State<MakerListDropdownButton> createState() =>
-      _MakerListDropdownButtonState();
-}
-
-class _MakerListDropdownButtonState extends State<MakerListDropdownButton> {
-  String dropdownValue = makerList.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-      style: const TextStyle(color: Colors.black),
-      onChanged: (String? value) {
-        setState(() {
-          dropdownValue = value!;
-        });
-      },
-      items: makerList.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: SizedBox(
-            width: 100,
-            child: Row(
-              children: [
-                const Spacer(),
-                Text(value),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class GenreListDropdownButton extends StatefulWidget {
-  const GenreListDropdownButton({super.key});
-
-  @override
-  State<GenreListDropdownButton> createState() =>
-      _GenreListDropdownButtonState();
-}
-
-class _GenreListDropdownButtonState extends State<GenreListDropdownButton> {
-  String dropdownValue = genreList.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-      style: const TextStyle(color: Colors.black),
-      onChanged: (String? value) {
-        setState(() {
-          dropdownValue = value!;
-        });
-      },
-      items: genreList.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: SizedBox(
-            width: 115,
-            child: Row(
-              children: [
-                const Spacer(),
-                Text(value),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 }
