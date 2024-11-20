@@ -121,7 +121,12 @@ class PostPage extends ConsumerWidget {
 
     Future<void> _uploadImageAndSaveData() async {
       if (formState.selectedImage == null) {
-        print("画像を選択してください");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('画像が選択されていません'),
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
 
