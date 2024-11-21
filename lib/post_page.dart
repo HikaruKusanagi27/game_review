@@ -106,7 +106,7 @@ class PostPage extends ConsumerWidget {
     final formState = ref.watch(postFormProvider);
     final postFormNotifier = ref.read(postFormProvider.notifier);
 
-    Future<void> _pickImage() async {
+    Future<void> pickImage() async {
       try {
         final picker = ImagePicker();
         final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -119,7 +119,7 @@ class PostPage extends ConsumerWidget {
       }
     }
 
-    Future<void> _uploadImageAndSaveData() async {
+    Future<void> uploadImageAndSaveData() async {
       if (formState.selectedImage == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -168,7 +168,7 @@ class PostPage extends ConsumerWidget {
             child: Column(
               children: [
                 GestureDetector(
-                  onTap: _pickImage,
+                  onTap: pickImage,
                   child: SizedBox(
                     height: 300,
                     width: 300,
@@ -322,7 +322,7 @@ class PostPage extends ConsumerWidget {
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _uploadImageAndSaveData,
+                  onPressed: uploadImageAndSaveData,
                   child: const Text('投稿'),
                 ),
               ],
