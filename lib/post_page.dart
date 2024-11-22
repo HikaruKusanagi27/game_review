@@ -17,6 +17,7 @@ class PostFormState {
   final String genre;
   final File? selectedImage;
   final DateTime? selectedDate;
+  final bool isLoading;
 
   PostFormState({
     required this.title,
@@ -26,6 +27,7 @@ class PostFormState {
     required this.genre,
     this.selectedImage,
     this.selectedDate,
+    this.isLoading = false,
   });
 
   PostFormState copyWith({
@@ -36,6 +38,7 @@ class PostFormState {
     String? genre,
     File? selectedImage,
     DateTime? selectedDate,
+    bool? isLoading,
   }) {
     return PostFormState(
       title: title ?? this.title,
@@ -45,6 +48,7 @@ class PostFormState {
       genre: genre ?? this.genre,
       selectedImage: selectedImage ?? this.selectedImage,
       selectedDate: selectedDate ?? this.selectedDate,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -58,6 +62,10 @@ class PostFormNotifier extends StateNotifier<PostFormState> {
           maker: makerList.first,
           genre: genreList.first,
         ));
+
+  void setLoading(bool isLoading) {
+    state = state.copyWith(isLoading: isLoading);
+  }
 
   void updateTitle(String? title) {
     state = state.copyWith(title: title ?? ''); // title が null の場合は空文字をセット
@@ -130,6 +138,7 @@ class PostPage extends ConsumerWidget {
         return;
       }
 
+      postFormNotifier.setLoading(true);
       try {
         final storage = FirebaseStorage.instance;
         final storageRef = storage
@@ -153,6 +162,8 @@ class PostPage extends ConsumerWidget {
         print("データが正常に保存されました");
       } catch (e) {
         print("画像のアップロードまたはデータ保存に失敗しました: $e");
+      } finally {
+        postFormNotifier.setLoading(false);
       }
     }
 
@@ -160,176 +171,183 @@ class PostPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.cyan[50],
       ),
-      body: Container(
-        color: Colors.cyan[400],
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: pickImage,
-                  child: SizedBox(
-                    height: 300,
-                    width: 300,
-                    child: Card(
-                        color: Colors.grey,
-                        child: Center(
-                            child: formState.selectedImage == null
-                                ? const Text('         タップして\n画像選択してください')
-                                : Image.file(
-                                    formState.selectedImage!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Text('画像の読み込みに失敗しました');
-                                    },
-                                  ))),
+      body: Stack(children: [
+        Container(
+          color: Colors.cyan[400],
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: Card(
+                          color: Colors.grey,
+                          child: Center(
+                              child: formState.selectedImage == null
+                                  ? const Text('         タップして\n画像選択してください')
+                                  : Image.file(
+                                      formState.selectedImage!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Text('画像の読み込みに失敗しました');
+                                      },
+                                    ))),
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller:
-                            TextEditingController(text: formState.title),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'タイトル',
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller:
+                              TextEditingController(text: formState.title),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'タイトル',
+                          ),
+                          onChanged: postFormNotifier.updateTitle,
                         ),
-                        onChanged: postFormNotifier.updateTitle,
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller:
-                            TextEditingController(text: formState.releaseDate),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: '発売日',
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: TextEditingController(
+                              text: formState.releaseDate),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: '発売日',
+                          ),
+                          onChanged: postFormNotifier.updateReleaseDate,
                         ),
-                        onChanged: postFormNotifier.updateReleaseDate,
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Text('タイトル:'),
-                    SizedBox(width: 10),
-                    Text(
-                      formState.title.isNotEmpty
-                          ? formState.title
-                          : 'タイトルが入力されていません',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Text('発売日:'),
-                    SizedBox(width: 10),
-                    Text(
-                      formState.releaseDate.isNotEmpty
-                          ? formState.releaseDate
-                          : '日付が入力されていません',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                TableCalendar(
-                  firstDay: DateTime.utc(2010, 1, 1),
-                  lastDay: DateTime.utc(2030, 1, 1),
-                  focusedDay: DateTime.now(),
-                  selectedDayPredicate: (day) =>
-                      formState.selectedDate != null &&
-                      isSameDay(formState.selectedDate, day),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    postFormNotifier.updateSelectedDate(selectedDay);
-                    // 選択された日付を文字列形式にして releaseDate に保存
-                    final formattedDate =
-                        '${selectedDay.year}-${selectedDay.month.toString().padLeft(2, '0')}-${selectedDay.day.toString().padLeft(2, '0')}';
-                    postFormNotifier.updateReleaseDate(formattedDate);
-                  },
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('プラットフォーム:'),
-                    DropdownButton<String>(
-                      value: formState.platform,
-                      icon: const Icon(Icons.arrow_drop_down,
-                          color: Colors.black),
-                      onChanged: postFormNotifier.updatePlatform,
-                      items: platformList
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('メーカー:'),
-                    DropdownButton<String>(
-                      value: formState.maker,
-                      icon: const Icon(Icons.arrow_drop_down,
-                          color: Colors.black),
-                      onChanged: postFormNotifier.updateMaker,
-                      items: makerList
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('ジャンル:'),
-                    DropdownButton<String>(
-                      value: formState.genre,
-                      icon: const Icon(Icons.arrow_drop_down,
-                          color: Colors.black),
-                      onChanged: postFormNotifier.updateGenre,
-                      items: genreList
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: uploadImageAndSaveData,
-                  child: const Text('投稿'),
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Text('タイトル:'),
+                      SizedBox(width: 10),
+                      Text(
+                        formState.title.isNotEmpty
+                            ? formState.title
+                            : 'タイトルが入力されていません',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Text('発売日:'),
+                      SizedBox(width: 10),
+                      Text(
+                        formState.releaseDate.isNotEmpty
+                            ? formState.releaseDate
+                            : '日付が入力されていません',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  TableCalendar(
+                    firstDay: DateTime.utc(2010, 1, 1),
+                    lastDay: DateTime.utc(2030, 1, 1),
+                    focusedDay: DateTime.now(),
+                    selectedDayPredicate: (day) =>
+                        formState.selectedDate != null &&
+                        isSameDay(formState.selectedDate, day),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      postFormNotifier.updateSelectedDate(selectedDay);
+                      // 選択された日付を文字列形式にして releaseDate に保存
+                      final formattedDate =
+                          '${selectedDay.year}-${selectedDay.month.toString().padLeft(2, '0')}-${selectedDay.day.toString().padLeft(2, '0')}';
+                      postFormNotifier.updateReleaseDate(formattedDate);
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('プラットフォーム:'),
+                      DropdownButton<String>(
+                        value: formState.platform,
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.black),
+                        onChanged: postFormNotifier.updatePlatform,
+                        items: platformList
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('メーカー:'),
+                      DropdownButton<String>(
+                        value: formState.maker,
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.black),
+                        onChanged: postFormNotifier.updateMaker,
+                        items: makerList
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('ジャンル:'),
+                      DropdownButton<String>(
+                        value: formState.genre,
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.black),
+                        onChanged: postFormNotifier.updateGenre,
+                        items: genreList
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: uploadImageAndSaveData,
+                    child: const Text('投稿'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+        if (formState.isLoading)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+      ]),
     );
   }
 }
