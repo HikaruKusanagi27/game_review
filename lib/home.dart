@@ -92,14 +92,12 @@ Future<List<Map<String, dynamic>>> getImageData() async {
     String imageUrl = doc['imageURL'];
     String release = doc['release'];
     String platform = doc['platform'];
-    String maker = doc['maker'];
     String genre = doc['genre'];
     cardDataList.add({
       'name': name,
       'imageURL': imageUrl,
       'platform': platform,
       'release': release,
-      'maker': maker,
       'genre': genre,
     });
   }

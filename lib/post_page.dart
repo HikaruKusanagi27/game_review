@@ -13,7 +13,6 @@ class PostFormState {
   final String title;
   final String releaseDate;
   final String platform;
-  final String maker;
   final String genre;
   final File? selectedImage;
   final DateTime? selectedDate;
@@ -23,7 +22,6 @@ class PostFormState {
     required this.title,
     required this.releaseDate,
     required this.platform,
-    required this.maker,
     required this.genre,
     this.selectedImage,
     this.selectedDate,
@@ -44,7 +42,6 @@ class PostFormState {
       title: title ?? this.title,
       releaseDate: releaseDate ?? this.releaseDate,
       platform: platform ?? this.platform,
-      maker: maker ?? this.maker,
       genre: genre ?? this.genre,
       selectedImage: selectedImage ?? this.selectedImage,
       selectedDate: selectedDate ?? this.selectedDate,
@@ -59,7 +56,6 @@ class PostFormNotifier extends StateNotifier<PostFormState> {
           title: '',
           releaseDate: '',
           platform: platformList.first,
-          maker: makerList.first,
           genre: genreList.first,
         ));
 
@@ -67,8 +63,12 @@ class PostFormNotifier extends StateNotifier<PostFormState> {
     state = state.copyWith(isLoading: isLoading);
   }
 
-  void updateTitle(String? title) {
-    state = state.copyWith(title: title ?? ''); // title が null の場合は空文字をセット
+  void deleteTitle(String? title) {
+    state = state.copyWith(title: title ?? '');
+  }
+
+  void deleteReleaseDate(String? releaseDate) {
+    state = state.copyWith(releaseDate: releaseDate ?? '');
   }
 
   void updateReleaseDate(String releaseDate) {
@@ -100,11 +100,9 @@ final postFormProvider = StateNotifierProvider<PostFormNotifier, PostFormState>(
   (ref) => PostFormNotifier(),
 );
 
-const List<String> platformList = <String>['Switch', 'PS5', 'Steam'];
+const List<String> platformList = <String>['Switch', 'PS5', 'Steam', 'その他'];
 
-const List<String> makerList = <String>['ソニー', 'ニンテンドー', 'セガ'];
-
-const List<String> genreList = <String>['アクション', 'RPG', 'シュミレーション'];
+const List<String> genreList = <String>['アクション', 'RPG', 'シュミレーション', 'その他'];
 
 class PostPage extends ConsumerWidget {
   const PostPage({super.key});
@@ -153,7 +151,6 @@ class PostPage extends ConsumerWidget {
           'name': formState.title,
           'release': formState.releaseDate,
           'platform': formState.platform,
-          'maker': formState.maker,
           'genre': formState.genre,
           'imageURL': imageUrl,
         });
@@ -206,10 +203,16 @@ class PostPage extends ConsumerWidget {
                           controller:
                               TextEditingController(text: formState.title),
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             labelText: 'タイトル',
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                postFormNotifier.deleteTitle('');
+                              },
+                            ),
                           ),
-                          onChanged: postFormNotifier.updateTitle,
+                          onChanged: postFormNotifier.deleteTitle,
                         ),
                       ),
                     ],
@@ -222,10 +225,16 @@ class PostPage extends ConsumerWidget {
                           controller: TextEditingController(
                               text: formState.releaseDate),
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             labelText: '発売日',
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                postFormNotifier.deleteReleaseDate('');
+                              },
+                            ),
                           ),
-                          onChanged: postFormNotifier.updateReleaseDate,
+                          onChanged: postFormNotifier.deleteReleaseDate,
                         ),
                       ),
                     ],
@@ -277,7 +286,7 @@ class PostPage extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('プラットフォーム:'),
+                      const Text('プラットフォーム:'),
                       DropdownButton<String>(
                         value: formState.platform,
                         icon: const Icon(Icons.arrow_drop_down,
@@ -293,31 +302,10 @@ class PostPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('メーカー:'),
-                      DropdownButton<String>(
-                        value: formState.maker,
-                        icon: const Icon(Icons.arrow_drop_down,
-                            color: Colors.black),
-                        onChanged: postFormNotifier.updateMaker,
-                        items: makerList
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('ジャンル:'),
+                      const Text('ジャンル:'),
                       DropdownButton<String>(
                         value: formState.genre,
                         icon: const Icon(Icons.arrow_drop_down,
@@ -327,13 +315,15 @@ class PostPage extends ConsumerWidget {
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: SizedBox(
+                                width: 150,
+                                child: Text(value, textAlign: TextAlign.right)),
                           );
                         }).toList(),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: uploadImageAndSaveData,
                     child: const Text('投稿'),

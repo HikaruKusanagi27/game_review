@@ -85,7 +85,6 @@ class DetailPage extends StatelessWidget {
                           children: [
                             _buildDetailRow('プラットフォーム:', cardData['platform']),
                             _buildDetailRow('発売日:', cardData['release']),
-                            _buildDetailRow('メーカー:', cardData['maker']),
                             _buildDetailRow('ジャンル:', cardData['genre']),
                           ],
                         ),
