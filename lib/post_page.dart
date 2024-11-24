@@ -3,61 +3,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:gamereview_app/post_form.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-//Riverpodの状態管理
-//フォームの状態を管理するためのStateNotifierを作成。
-class PostFormState {
-  final String title;
-  final String releaseDate;
-  final String platform;
-  final String genre;
-  final File? selectedImage;
-  final DateTime? selectedDate;
-  final bool isLoading;
-
-  PostFormState({
-    required this.title,
-    required this.releaseDate,
-    required this.platform,
-    required this.genre,
-    this.selectedImage,
-    this.selectedDate,
-    this.isLoading = false,
-  });
-
-  PostFormState copyWith({
-    String? title,
-    String? releaseDate,
-    String? platform,
-    String? maker,
-    String? genre,
-    File? selectedImage,
-    DateTime? selectedDate,
-    bool? isLoading,
-  }) {
-    return PostFormState(
-      title: title ?? this.title,
-      releaseDate: releaseDate ?? this.releaseDate,
-      platform: platform ?? this.platform,
-      genre: genre ?? this.genre,
-      selectedImage: selectedImage ?? this.selectedImage,
-      selectedDate: selectedDate ?? this.selectedDate,
-      isLoading: isLoading ?? this.isLoading,
-    );
-  }
-}
-
 class PostFormNotifier extends StateNotifier<PostFormState> {
-  PostFormNotifier()
-      : super(PostFormState(
-          title: '',
-          releaseDate: '',
-          platform: platformList.first,
-          genre: genreList.first,
-        ));
+  PostFormNotifier() : super(PostFormState.initial());
 
   void setLoading(bool isLoading) {
     state = state.copyWith(isLoading: isLoading);
@@ -76,15 +28,11 @@ class PostFormNotifier extends StateNotifier<PostFormState> {
   }
 
   void updatePlatform(String? platform) {
-    state = state.copyWith(platform: platform);
-  }
-
-  void updateMaker(String? maker) {
-    state = state.copyWith(maker: maker);
+    state = state.copyWith(platform: platform ?? '');
   }
 
   void updateGenre(String? genre) {
-    state = state.copyWith(genre: genre);
+    state = state.copyWith(genre: genre ?? '');
   }
 
   void updateSelectedImage(File? image) {
