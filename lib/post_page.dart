@@ -44,7 +44,8 @@ class PostFormNotifier extends StateNotifier<PostFormState> {
   }
 }
 
-final postFormProvider = StateNotifierProvider<PostFormNotifier, PostFormState>(
+final postFormProvider =
+    StateNotifierProvider.autoDispose<PostFormNotifier, PostFormState>(
   (ref) => PostFormNotifier(),
 );
 
