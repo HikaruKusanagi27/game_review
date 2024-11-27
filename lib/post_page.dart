@@ -105,9 +105,9 @@ class PostPage extends ConsumerWidget {
         });
 
         Navigator.pop(context); // 投稿後に前の画面に戻る
-        print("データが正常に保存されました");
+        //print("データが正常に保存されました");
       } catch (e) {
-        print("画像のアップロードまたはデータ保存に失敗しました: $e");
+        //print("画像のアップロードまたはデータ保存に失敗しました: $e");
       } finally {
         postFormNotifier.setLoading(false);
       }
